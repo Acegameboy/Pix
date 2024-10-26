@@ -22,12 +22,7 @@ inline Vector3 LerpPosition(const Vector3& a, const Vector3& b, float t, bool to
 		v.x = floorf(v.x + 0.5f);
 		v.y = floorf(v.y + 0.5f);
 	}
-	return
-	{
-		a.x + (b.x - a.x) * t,
-		a.y + (b.y - a.y) * t,
-		a.z + (b.z - a.z) * t,
-	};
+	return v;	
 }
 
 inline X::Color LerpColor(const X::Color& a, const X::Color& b, float t)
