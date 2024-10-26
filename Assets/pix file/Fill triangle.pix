@@ -1,0 +1,11 @@
+SetResolution(50,50,10,true)
+
+BeginDraw(triangle)
+
+SetFillMode(Solid)
+
+Vertex(2,2,1,0,0)
+Vertex(48,2,0,1,0)
+Vertex(2,48,0,0,1)
+
+EndDraw()

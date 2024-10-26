@@ -5,7 +5,7 @@
 
 enum class FillMode
 {
-	Soild,
+	Solid,
 	Wireframe
 
 };

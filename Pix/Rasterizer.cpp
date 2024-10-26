@@ -33,9 +33,9 @@ Rasterizer* Rasterizer::Get()
 	return &sInstance;
 }
 
-void Rasterizer::SetFillMode(FillMode fillmMode)
+void Rasterizer::SetFillMode(FillMode fillMode)
 {
-
+	mFillMode = fillMode; 
 }
 
 void Rasterizer::SetColor(X::Color color)
@@ -99,7 +99,7 @@ void Rasterizer::DrawTriangle(const Vertex& a, const Vertex& b, const Vertex& c)
 		DrawLine(c, a);
 	}
 	break;
-	case FillMode::Soild:
+	case FillMode::Solid:
 	{
 		std::vector<Vertex> sortedVectices = { a,b,c };
 		std::stable_sort(sortedVectices.begin(), sortedVectices.end(), [](const Vertex& lhs, const Vertex& rhs)
