@@ -2,12 +2,12 @@
 
 #include "Command.h"
 
-class CmdSetViewPort : public Command
+class CmdSetViewport : public Command
 {
 public:
 	const char* GetName() override
 	{
-		return "SetViewPort";
+		return "SetViewport";
 	}
 
 	const char* GetDescription() override

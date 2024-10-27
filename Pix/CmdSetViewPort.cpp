@@ -2,7 +2,7 @@
 #include "Viewport.h"
 #include "VariableCache.h"
 
-bool CmdSetViewPort::Execute(const std::vector<std::string>& params)
+bool CmdSetViewport::Execute(const std::vector<std::string>& params)
 {
 	if (params.size() < 4)
 	{

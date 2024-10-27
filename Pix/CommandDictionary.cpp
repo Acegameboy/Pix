@@ -37,7 +37,7 @@ CommandDictionary::CommandDictionary()
 	RegisterCommand<CmdVertex>();
 	RegisterCommand<CmdEndDraw>();
 	//New command
-	RegisterCommand<CmdSetViewPort>();
+	RegisterCommand<CmdSetViewport>();
 	RegisterCommand<CmdSetClipping>();
 }
 
