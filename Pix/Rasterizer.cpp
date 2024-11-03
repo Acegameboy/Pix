@@ -30,6 +30,11 @@ void DrawLineHeigh(const Vertex& bottom, const Vertex& top)
 Rasterizer* Rasterizer::Get()
 {
 	static Rasterizer sInstance;
+
+	Matrix4 matC = Matrix4::Translation(1.0f, 0.0f, 5.0f);
+	Matrix4 final = matC;
+	Matrix4 finalInv = MathHelper::Inverse(final);
+	Matrix4 indentity = final * finalInv;
 	return &sInstance;
 }
 
