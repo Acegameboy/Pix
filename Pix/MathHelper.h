@@ -17,6 +17,8 @@ namespace MathHelper
     Vector2 Normalize(const Vector2& v);
     Vector3 Normalize(const Vector3& v);
 
+    void FlattenVectorScreenCoords(Vector3& v);
+
     float Dot(const Vector2& a, const Vector2& b);
     float Dot(const Vector3& a, const Vector3& b);
 

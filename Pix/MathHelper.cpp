@@ -36,6 +36,13 @@ Vector3 MathHelper::Normalize(const Vector3& v)
     return v / Magnitude(v);
 }
 
+void MathHelper::FlattenVectorScreenCoords(Vector3& v)
+{
+    v.x = floor(v.x + 0.5f);
+    v.y = floor(v.y + 0.5f);
+
+}
+
 float MathHelper::Dot(const Vector2& a, const Vector2& b)
 {
     return a.x * b.x + a.y * b.y;

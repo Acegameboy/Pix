@@ -1,6 +1,28 @@
 #include "PrimitivesManager.h"
 #include "Rasterizer.h"
 #include "Clippers.h"
+#include "Camera.h"
+#include "MatrixStack.h"
+
+extern float gResolutionX;
+extern float gResolutionY;
+
+
+namespace
+{
+	Matrix4 GetScreenTransform()
+	{
+		float hw = gResolutionX * 0.5f;
+		float hh = gResolutionY * 0.5f;
+		return
+		{
+			  hw, 0.0f, 0.0f, 0.0f,
+			0.0f,   hh, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			  hw,   hh, 0.0f, 1.0f
+		};
+	}
+}
 
 PrimitivesManager* PrimitivesManager::Get()
 {
@@ -8,10 +30,11 @@ PrimitivesManager* PrimitivesManager::Get()
 	return &sInstance;
 }
 
-void PrimitivesManager::BeginDraw(Topology topology)
+void PrimitivesManager::BeginDraw(Topology topology, bool applyTransform)
 {
 	mVertexBuffer.clear();
 	mTopology = topology;
+	mApplyTransform = applyTransform;
 	mDrawBegin = true;
 }
 
@@ -51,6 +74,19 @@ void PrimitivesManager::EndDraw()
 		}
 		break;
 	case Topology::Triangle:
+		if (mApplyTransform)
+		{
+			Matrix4 matWorld = MatrixStack::Get()->GetTransform();
+			Matrix4 matView = Camera::Get()->GetViewMatrix();
+			Matrix4 matProj = Camera::Get()->GetProjectionMatrix();
+			Matrix4 matScreen = GetScreenTransform();
+			Matrix4 matFinal = matWorld * matView * matProj * matScreen;
+			for (Vertex& v : mVertexBuffer)
+			{
+				v.pos = MathHelper::TransformCoord(v.pos, matFinal);
+				MathHelper::FlattenVectorScreenCoords(v.pos);
+			}
+		}
 		for (size_t i = 2; i < mVertexBuffer.size(); i += 3)
 		{
 			std::vector<Vertex> triangle = { mVertexBuffer[i - 2], mVertexBuffer[i - 1], mVertexBuffer[i] };

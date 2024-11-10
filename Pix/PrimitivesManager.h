@@ -15,7 +15,7 @@ class PrimitivesManager
 public:
 	static PrimitivesManager* Get();
 
-	void BeginDraw(Topology topology);
+	void BeginDraw(Topology topology, bool applyTransform);
 	void AddVertex(const Vertex& vertex);
 	void EndDraw();
 	
@@ -24,5 +24,5 @@ private:
 	Topology mTopology = Topology::Triangle;
 
 	bool mDrawBegin = false;
-		
+	bool mApplyTransform = false;
 };
