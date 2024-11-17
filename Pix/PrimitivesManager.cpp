@@ -22,12 +22,48 @@ namespace
 			  hw,   hh, 0.0f, 1.0f
 		};
 	}
+	Vector3 CreateFacingNormal(const Vector3& a, const Vector3& b, const Vector3& c)
+	{
+		Vector3 dirAB = b - a;
+		Vector3 dirAC = c - a;
+		Vector3 faceNormal = MathHelper::Cross(dirAB, dirAC);
+		return MathHelper::Normalize(faceNormal);
+	}
+
+	bool CullTriangle(CullMode mode, const std::vector<Vertex>& triangleInNDC)
+	{
+		if (mode == CullMode::None)
+		{
+			return false;
+		}
+		Vector3 faceNormal = CreateFacingNormal(triangleInNDC[0].pos, triangleInNDC[1].pos, triangleInNDC[2].pos);
+		if (mode == CullMode::Back)
+		{
+			return faceNormal.z > 0.0f;
+		}
+		if (mode == CullMode::Front)
+		{
+			return faceNormal.z <  0.0f;
+		}
+
+		return false;
+	}
 }
 
 PrimitivesManager* PrimitivesManager::Get()
 {
 	static PrimitivesManager sInstance;
 	return &sInstance;
+}
+
+void PrimitivesManager::OnNewFrame()
+{
+	mCullMode = CullMode::None;
+}
+
+void PrimitivesManager::SetCullMode(CullMode mode)
+{
+	mCullMode = mode;
 }
 
 void PrimitivesManager::BeginDraw(Topology topology, bool applyTransform)
@@ -74,22 +110,36 @@ void PrimitivesManager::EndDraw()
 		}
 		break;
 	case Topology::Triangle:
-		if (mApplyTransform)
-		{
-			Matrix4 matWorld = MatrixStack::Get()->GetTransform();
-			Matrix4 matView = Camera::Get()->GetViewMatrix();
-			Matrix4 matProj = Camera::Get()->GetProjectionMatrix();
-			Matrix4 matScreen = GetScreenTransform();
-			Matrix4 matFinal = matWorld * matView * matProj * matScreen;
-			for (Vertex& v : mVertexBuffer)
-			{
-				v.pos = MathHelper::TransformCoord(v.pos, matFinal);
-				MathHelper::FlattenVectorScreenCoords(v.pos);
-			}
-		}
+	{
+
+		Matrix4 matWorld = MatrixStack::Get()->GetTransform();
+		Matrix4 matView = Camera::Get()->GetViewMatrix();
+		Matrix4 matProj = Camera::Get()->GetProjectionMatrix();
+		Matrix4 matScreen = GetScreenTransform();
+		Matrix4 matToNDC = matWorld * matView * matProj;
+
 		for (size_t i = 2; i < mVertexBuffer.size(); i += 3)
 		{
 			std::vector<Vertex> triangle = { mVertexBuffer[i - 2], mVertexBuffer[i - 1], mVertexBuffer[i] };
+			if (mApplyTransform)
+			{
+				//Move all position to NDC space
+				for (size_t i = 0; i < triangle.size(); i++)
+				{
+					triangle[i].pos = MathHelper::TransformCoord(triangle[i].pos, matToNDC);
+				}
+				//Test to see if we cull the triangle
+				if (CullTriangle(mCullMode, triangle))
+				{
+					continue;
+				}
+				//Move all position into Screen Space
+				for (size_t i = 0; i < triangle.size(); i++)
+				{
+					triangle[i].pos = MathHelper::TransformCoord(triangle[i].pos, matScreen);
+					MathHelper::FlattenVectorScreenCoords(triangle[i].pos);
+				}
+			}
 			if (!Clipper::Get()->ClipTriangle(triangle))
 			{
 				for (size_t t = 2; t < triangle.size(); ++t)
@@ -98,6 +148,7 @@ void PrimitivesManager::EndDraw()
 				}
 			}
 		}
+	}
 		break;
 	default:
 		break;		

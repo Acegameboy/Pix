@@ -6,6 +6,11 @@ bool MathHelper::IsEqual(float a, float b)
     return abs(a - b) < 0.001f;
 }
 
+bool MathHelper::IsEqual(const Vector3& a, const Vector3& b)
+{
+    return IsEqual(a.x, b.x) && IsEqual(a.y, b.y);//&& IsEqual(a.z, b.z);
+}
+
 float MathHelper::MagnitudeSquared(const Vector2& v)
 {
     return v.x * v.x + v.y * v.y;

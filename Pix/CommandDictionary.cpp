@@ -12,7 +12,8 @@
 #include "CmdSetClipping.h"
 #include "CmdMatrix.h"
 #include "CmdCamera.h"
-
+#include "CmdSetCullMode.h"
+#include "CmdEnableDepth.h"
 CommandDictionary* CommandDictionary::Get()
 {
 	static CommandDictionary sInstance;
@@ -33,6 +34,7 @@ CommandDictionary::CommandDictionary()
 	RegisterCommand<CmdDrawPixel>();
 	RegisterCommand<CmdSetColor>();
 	RegisterCommand<CmdSetFillMode>();
+	RegisterCommand<CmdEnableDepth>();
 
 	//Primitives commands
 	RegisterCommand<CmdBeginDraw>();
@@ -41,6 +43,7 @@ CommandDictionary::CommandDictionary()
 	//New command
 	RegisterCommand<CmdSetViewport>();
 	RegisterCommand<CmdSetClipping>();
+	RegisterCommand<CmdSetCullMode>();
 
 	RegisterCommand<CmdPushTranslation>();
 	RegisterCommand<CmdPushRotationX>();

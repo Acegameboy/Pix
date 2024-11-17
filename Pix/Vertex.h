@@ -25,6 +25,8 @@ inline Vector3 LerpPosition(const Vector3& a, const Vector3& b, float t, bool to
 	return v;	
 }
 
+
+
 inline X::Color LerpColor(const X::Color& a, const X::Color& b, float t)
 {
 	return
