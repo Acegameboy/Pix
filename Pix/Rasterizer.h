@@ -10,6 +10,13 @@ enum class FillMode
 
 };
 
+enum class ShadeMode
+{
+	Flat,   //light per face
+	Gourrad,//light per vertex
+	Phong   //light per 
+};
+
 class Rasterizer
 {
 public:
@@ -17,6 +24,8 @@ public:
 
 public:
 	void SetFillMode(FillMode fillmMode);
+	void SetShadeMode(ShadeMode shadeMode);
+	ShadeMode GetShadeMode() const;
 
 	void SetColor(X::Color color);
 
@@ -31,4 +40,5 @@ private:
 
 	X::Color mColor = X::Colors::White;
 	FillMode mFillMode = FillMode::Solid;
+	ShadeMode mShadeMode = ShadeMode::Gourrad;
 };

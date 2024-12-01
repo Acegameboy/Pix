@@ -18,7 +18,7 @@ namespace
 		return
 		{
 			  hw, 0.0f, 0.0f, 0.0f,
-			0.0f,   hh, 0.0f, 0.0f,
+			0.0f,  -hh, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 0.0f,
 			  hw,   hh, 0.0f, 1.0f
 		};
@@ -119,24 +119,49 @@ void PrimitivesManager::EndDraw()
 		Matrix4 matScreen = GetScreenTransform();
 		Matrix4 matToNDC = matView * matProj;
 
+		ShadeMode shadeMode = Rasterizer::Get()->GetShadeMode();
+
 		for (size_t i = 2; i < mVertexBuffer.size(); i += 3)
 		{
 			std::vector<Vertex> triangle = { mVertexBuffer[i - 2], mVertexBuffer[i - 1], mVertexBuffer[i] };
 			if (mApplyTransform)
 			{
+				//Move to world space=============================================================
 				//Move all position to world space
 				for (size_t i = 0; i < triangle.size(); i++)
 				{
 					triangle[i].pos = MathHelper::TransformCoord(triangle[i].pos, matWorld);
+					triangle[i].posWorld = triangle[i].pos;
 				}
 
-				Vector3 faceNormal = CreateFacingNormal(triangle[0].pos, triangle[1].pos, triangle[2].pos);
-
-				for (size_t i = 0; i < triangle.size(); i++)
+				//If we dont have a normal(e.g not a model), then create face normal
+				if (MathHelper::IsEqual(triangle[0].norm, { 0.0f, 0.0f, 0.0f }))
 				{
-					triangle[i].color *= lm->ComputeLightColor(triangle[i].pos, faceNormal);
+					Vector3 faceNormal = CreateFacingNormal(triangle[0].pos, triangle[1].pos, triangle[2].pos);
+					for (size_t i = 0; i < triangle.size(); ++i)
+					{
+						triangle[i].norm = faceNormal;
+					}
+				}
+				//otherwise move the local space normal into world space
+				else
+				{
+					for (size_t i = 0; i < triangle.size(); ++i)
+					{
+						triangle[i].norm = MathHelper::TransformNormal(triangle[i].norm, matWorld);
+					}
 				}
 
+				//If flat or gouraud, we want vertex lighting, otherwise do not do lighting here
+				if (shadeMode != ShadeMode::Phong)
+				{
+					for (size_t i = 0; i < triangle.size(); ++i)
+					{
+						triangle[i].color *= lm->ComputeLightColor(triangle[i].pos, triangle[i].norm);
+					}
+				}
+
+				//Move to NDC Space===================================================================
 				//Move all position to NDC space
 				for (size_t i = 0; i < triangle.size(); i++)
 				{
@@ -154,7 +179,7 @@ void PrimitivesManager::EndDraw()
 					MathHelper::FlattenVectorScreenCoords(triangle[i].pos);
 				}
 			}
-			if (!Clipper::Get()->ClipTriangle(triangle))
+			if (!Clipper::Get()->ClipTriangle(triangle, shadeMode == ShadeMode::Phong))
 			{
 				for (size_t t = 2; t < triangle.size(); ++t)
 				{

@@ -117,15 +117,15 @@ bool CmdAddSpotLight::Execute(const std::vector<std::string>& params)
 	float decay = 0.0f;
 	if (params.size() > 6)
 	{
-		constant = vc->GetFloat(params[3]);
+		constant = vc->GetFloat(params[6]);
 	}
 	if (params.size() > 7)
 	{
-		linear = vc->GetFloat(params[4]);
+		linear = vc->GetFloat(params[7]);
 	}
 	if (params.size() > 8)
 	{
-		quadratic = vc->GetFloat(params[5]);
+		quadratic = vc->GetFloat(params[8]);
 	}
 	if (params.size() > 9)
 	{

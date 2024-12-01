@@ -1,9 +1,10 @@
 #include "Rasterizer.h"
 #include "DepthBuffer.h"
+#include "LightManager.h"
 
 //draw a lin where abs(m) > 0 and <1
 
-void DrawLineLow(const Vertex& left, const Vertex& right)
+void DrawLineLow(const Vertex& left, const Vertex& right, ShadeMode shadeMode)
 {
 	int startX = static_cast<int>(left.pos.x);
 	int endX = static_cast<int>(right.pos.x);
@@ -12,11 +13,11 @@ void DrawLineLow(const Vertex& left, const Vertex& right)
 	for (int x = startX; x <= endX; x++)
 	{
 		float t = static_cast<float>(x - startX) / dx;
-		Rasterizer::Get()->DrawPoint(LerpVertex(left, right, t));
+		Rasterizer::Get()->DrawPoint(LerpVertex(left, right, t, shadeMode == ShadeMode::Phong));
 	}
 }
 
-void DrawLineHeigh(const Vertex& bottom, const Vertex& top)
+void DrawLineHeigh(const Vertex& bottom, const Vertex& top, ShadeMode shadeMode)
 {
 	int startY = static_cast<int>(bottom.pos.y);
 	int endY = static_cast<int>(top.pos.y);
@@ -24,7 +25,7 @@ void DrawLineHeigh(const Vertex& bottom, const Vertex& top)
 	for (int y = startY; y <= endY; y++)
 	{
 		float t = static_cast<float>(y - startY) / dy;
-		Rasterizer::Get()->DrawPoint(LerpVertex(bottom, top, t));
+		Rasterizer::Get()->DrawPoint(LerpVertex(bottom, top, t, shadeMode == ShadeMode::Phong));
 	}
 }
 
@@ -44,6 +45,17 @@ void Rasterizer::SetFillMode(FillMode fillMode)
 	mFillMode = fillMode; 
 }
 
+void Rasterizer::SetShadeMode(ShadeMode shadeMode)
+{
+	mShadeMode = shadeMode;
+}
+
+ShadeMode Rasterizer::GetShadeMode() const
+{
+	return mShadeMode;
+}
+
+
 void Rasterizer::SetColor(X::Color color)
 {
 	mColor = color;
@@ -58,7 +70,12 @@ void Rasterizer::DrawPoint(const Vertex& v)
 {
 	if (DepthBuffer::Get()->CheckDepthBuffer(v.pos.x, v.pos.y, v.pos.z))
 	{
-		SetColor(v.color);
+		mColor = v.color;
+		if (mShadeMode == ShadeMode::Phong)
+		{
+			mColor *= LightManager::Get()->ComputeLightColor(v.posWorld, v.norm);
+		}
+		SetColor(mColor);
 		DrawPoint(static_cast<int>(v.pos.x), static_cast<int>(v.pos.y));
 	}
 }
@@ -82,22 +99,22 @@ void Rasterizer::DrawLine(const Vertex& a, const Vertex& b)
 	{
 		if (a.pos.y < b.pos.y)
 		{
-			DrawLineHeigh(a, b);
+			DrawLineHeigh(a, b, mShadeMode);
 		}
 		else
 		{
-			DrawLineHeigh(b, a);
+			DrawLineHeigh(b, a, mShadeMode);
 		}
 	}
 	else
 	{
 		if (a.pos.x < b.pos.x)
 		{
-			DrawLineLow(a, b);
+			DrawLineLow(a, b, mShadeMode);
 		}
 		else
 		{
-			DrawLineLow(b, a);
+			DrawLineLow(b, a, mShadeMode);
 		}
 	}
 }
@@ -116,6 +133,11 @@ void Rasterizer::DrawTriangle(const Vertex& a, const Vertex& b, const Vertex& c)
 	case FillMode::Solid:
 	{
 		std::vector<Vertex> sortedVectices = { a,b,c };
+		if (mShadeMode == ShadeMode::Flat)
+		{
+			sortedVectices[1].color = sortedVectices[0].color;
+			sortedVectices[2].color = sortedVectices[0].color;
+		}
 		std::stable_sort(sortedVectices.begin(), sortedVectices.end(), [](const Vertex& lhs, const Vertex& rhs)
 		{
 			return lhs.pos.y < rhs.pos.y;
@@ -145,8 +167,8 @@ void Rasterizer::DrawFillTriangle(const Vertex& a, const Vertex& b, const Vertex
 		for (int y = startY; y <= endY; y++)
 		{
 			float t = static_cast<float>(y - startY) / dy;
-			Vertex v0 = LerpVertex(a, c, t);
-			Vertex v1 = LerpVertex(b, c, t);
+			Vertex v0 = LerpVertex(a, c, t, mShadeMode == ShadeMode::Phong);
+			Vertex v1 = LerpVertex(b, c, t, mShadeMode == ShadeMode::Phong);
 			DrawLine(v0, v1);
 		}
 	}
@@ -155,15 +177,15 @@ void Rasterizer::DrawFillTriangle(const Vertex& a, const Vertex& b, const Vertex
 		for (int y = startY; y <= endY; y++)
 		{
 			float t = static_cast<float>(y - startY) / dy;
-			Vertex v0 = LerpVertex(a, c, t);
-			Vertex v1 = LerpVertex(a, b, t);
+			Vertex v0 = LerpVertex(a, c, t, mShadeMode == ShadeMode::Phong);
+			Vertex v1 = LerpVertex(a, b, t, mShadeMode == ShadeMode::Phong);
 			DrawLine(v0, v1);
 		}
 	}
 	else
 	{
 		float t = (b.pos.y - a.pos.y) / dy;
-		Vertex splitVertex = LerpVertex(a, c, t);
+		Vertex splitVertex = LerpVertex(a, c, t, mShadeMode == ShadeMode::Phong);
 		DrawFillTriangle(a, b, splitVertex);
 		DrawFillTriangle(b, splitVertex, c);
 	}

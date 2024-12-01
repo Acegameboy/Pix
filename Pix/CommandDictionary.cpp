@@ -18,6 +18,8 @@
 #include "CmdVarBool.h"
 #include "CmdLights.h"
 #include "CmdMaterial.h"
+#include "CmdModel.h"
+#include "CmdSetShadeMode.h"
 CommandDictionary* CommandDictionary::Get()
 {
 	static CommandDictionary sInstance;
@@ -50,6 +52,8 @@ CommandDictionary::CommandDictionary()
 	RegisterCommand<CmdSetViewport>();
 	RegisterCommand<CmdSetClipping>();
 	RegisterCommand<CmdSetCullMode>();
+	RegisterCommand<CmdModel>();
+	RegisterCommand<CmdSetShadeMode>();
 
 	RegisterCommand<CmdPushTranslation>();
 	RegisterCommand<CmdPushRotationX>();
