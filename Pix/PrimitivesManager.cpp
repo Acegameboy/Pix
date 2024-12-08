@@ -67,6 +67,11 @@ void PrimitivesManager::SetCullMode(CullMode mode)
 	mCullMode = mode;
 }
 
+void PrimitivesManager::SetCorrectUV(bool correctUV)
+{
+	mCorrectUV = correctUV;
+}
+
 void PrimitivesManager::BeginDraw(Topology topology, bool applyTransform)
 {
 	mVertexBuffer.clear();
@@ -152,8 +157,23 @@ void PrimitivesManager::EndDraw()
 					}
 				}
 
+				//If color.z < 0.0f, it is a uv coordinate
+				if (triangle[0].color.z < 0.0f)
+				{
+					if (mCorrectUV)
+					{
+						for (size_t i = 0; i < triangle.size(); ++i)
+						{
+							Vector3 viewPos = MathHelper::TransformCoord(triangle[i].pos, matView);
+							triangle[i].color.x /= viewPos.z;
+							triangle[i].color.y /= viewPos.z;
+							triangle[i].color.w = 1.0f / viewPos.z;
+						}
+					}
+				}
+
 				//If flat or gouraud, we want vertex lighting, otherwise do not do lighting here
-				if (shadeMode != ShadeMode::Phong)
+				if (triangle[0].color.z >= 0.0f && shadeMode != ShadeMode::Phong)
 				{
 					for (size_t i = 0; i < triangle.size(); ++i)
 					{

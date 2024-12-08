@@ -20,6 +20,9 @@
 #include "CmdMaterial.h"
 #include "CmdModel.h"
 #include "CmdSetShadeMode.h"
+#include "CmdSetTexture.h"
+#include "CmdSetCorrectUV.h"
+#include "CmdSetAddressMode.h"
 CommandDictionary* CommandDictionary::Get()
 {
 	static CommandDictionary sInstance;
@@ -48,12 +51,15 @@ CommandDictionary::CommandDictionary()
 	RegisterCommand<CmdBeginDraw>();
 	RegisterCommand<CmdVertex>();
 	RegisterCommand<CmdEndDraw>();
+	RegisterCommand<CmdSetTexture>();
+	RegisterCommand<CmdSetCorrectUV>();
 	//New command
 	RegisterCommand<CmdSetViewport>();
 	RegisterCommand<CmdSetClipping>();
 	RegisterCommand<CmdSetCullMode>();
 	RegisterCommand<CmdModel>();
 	RegisterCommand<CmdSetShadeMode>();
+	RegisterCommand<CmdSetAddressMode>();
 
 	RegisterCommand<CmdPushTranslation>();
 	RegisterCommand<CmdPushRotationX>();

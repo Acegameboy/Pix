@@ -1,6 +1,7 @@
 #include "Rasterizer.h"
 #include "DepthBuffer.h"
 #include "LightManager.h"
+#include "TextureCache.h"
 
 //draw a lin where abs(m) > 0 and <1
 
@@ -70,12 +71,11 @@ void Rasterizer::DrawPoint(const Vertex& v)
 {
 	if (DepthBuffer::Get()->CheckDepthBuffer(v.pos.x, v.pos.y, v.pos.z))
 	{
-		mColor = v.color;
-		if (mShadeMode == ShadeMode::Phong)
+		mColor = TextureCache::Get()->SampleColor(v.color);
+		if (v.color.z >= 0.0f && mShadeMode == ShadeMode::Phong)
 		{
 			mColor *= LightManager::Get()->ComputeLightColor(v.posWorld, v.norm);
 		}
-		SetColor(mColor);
 		DrawPoint(static_cast<int>(v.pos.x), static_cast<int>(v.pos.y));
 	}
 }
