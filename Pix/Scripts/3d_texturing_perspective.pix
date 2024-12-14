@@ -18,6 +18,7 @@ float $rotY = 0, 0.1
 float $rotZ = 0, 0.1
 
 bool $correctUV = false
+bool $useFilter = false
 
 float $minUV = 0
 float $maxUV = 1
@@ -37,6 +38,7 @@ PushRotationX($rotX)
 
 SetCorrectUV($correctUV)
 SetAddressMode(wrap)
+SetUseFilter($useFilter)
 
 BeginDraw(triangle, true)
 
@@ -48,5 +50,6 @@ Vertex(1, 1, 0, $maxUV, $minUV, -1)
 Vertex(1, -1, 0, $maxUV, $maxUV, -1)
 
 EndDraw()
+
 
 

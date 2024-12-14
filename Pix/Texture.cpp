@@ -37,6 +37,33 @@ namespace
 	}
 
 #pragma pack(pop)
+
+	X::Color GetBilinearFilterPixelColor(const Texture& texture, float u, float v)
+	{
+		//Convert to texel x, y cordinates
+		float uTex = u * static_cast<float>(texture.GetWidth());
+		float vTex = v * static_cast<float>(texture.GetHeight());
+
+		//Convert the float values to indices
+		int uInt =static_cast<int>(uTex);
+		int vInt =static_cast<int>(vTex);
+
+		//Get the ratios between the texels
+		float uRatio = uTex - static_cast<float>(uInt);
+		float vRatio = vTex - static_cast<float>(vInt);
+		
+		//Get the opposite ratio value(e.g: If ratio = 0.15f, opposite = 0.85f)
+		float uOpposite = 1.0f - uRatio;
+		float vOpposite = 1.0f - vRatio;
+
+		X::Color a = texture.GetPixel(uInt, vInt) * uOpposite;
+		X::Color b = texture.GetPixel(uInt + 1, vInt) * uRatio;
+		X::Color c = texture.GetPixel(uInt, vInt + 1) * uOpposite;
+		X::Color d = texture.GetPixel(uInt + 1, vInt + 1) * uRatio;
+
+		return (a + b) * vOpposite
+			+ (c + d) * vRatio;
+	}
 }
 
 void Texture::Load(const std::string& fileName)
@@ -91,7 +118,7 @@ const std::string& Texture::GetFileName() const
 	return mFileName;
 }
 
-X::Color Texture::GetPixel(float u, float v, AddressMode mode) const
+X::Color Texture::GetPixel(float u, float v, AddressMode mode, bool useFilter) const
 {
 	switch (mode)
 	{
@@ -157,6 +184,12 @@ X::Color Texture::GetPixel(float u, float v, AddressMode mode) const
 	default:
 		break;
 	}
+
+	if (useFilter)
+	{
+		return GetBilinearFilterPixelColor(*this, u, v);
+	}
+
 	int uIndex = static_cast<int>(u * mWidth - 1);
 	int vIndex = static_cast<int>(v * mHeight - 1);
 	return GetPixel(uIndex, vIndex);

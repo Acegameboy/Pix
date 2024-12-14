@@ -23,6 +23,7 @@
 #include "CmdSetTexture.h"
 #include "CmdSetCorrectUV.h"
 #include "CmdSetAddressMode.h"
+#include "CmdSetUseFilter.h"
 CommandDictionary* CommandDictionary::Get()
 {
 	static CommandDictionary sInstance;
@@ -60,6 +61,7 @@ CommandDictionary::CommandDictionary()
 	RegisterCommand<CmdModel>();
 	RegisterCommand<CmdSetShadeMode>();
 	RegisterCommand<CmdSetAddressMode>();
+	RegisterCommand<CmdSetUseFilter>();
 
 	RegisterCommand<CmdPushTranslation>();
 	RegisterCommand<CmdPushRotationX>();
