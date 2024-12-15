@@ -40,6 +40,9 @@ SetCorrectUV($correctUV)
 SetAddressMode(wrap)
 SetUseFilter($useFilter)
 
+PostProcessingSetEffectType(wave)
+
+PostProcessingBeginDraw()
 BeginDraw(triangle, true)
 
 Vertex(-1, -1, 0, $minUV, $maxUV, -1)
@@ -50,6 +53,13 @@ Vertex(1, 1, 0, $maxUV, $minUV, -1)
 Vertex(1, -1, 0, $maxUV, $maxUV, -1)
 
 EndDraw()
+PostProcessingEndDraw()
+
+
+
+
+
+
 
 
 

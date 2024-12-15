@@ -24,6 +24,7 @@
 #include "CmdSetCorrectUV.h"
 #include "CmdSetAddressMode.h"
 #include "CmdSetUseFilter.h"
+#include "CmdPostProcessing.h"
 CommandDictionary* CommandDictionary::Get()
 {
 	static CommandDictionary sInstance;
@@ -62,6 +63,10 @@ CommandDictionary::CommandDictionary()
 	RegisterCommand<CmdSetShadeMode>();
 	RegisterCommand<CmdSetAddressMode>();
 	RegisterCommand<CmdSetUseFilter>();
+	//Processing Command
+	RegisterCommand<CmdPostProcessingBeginDraw>();
+	RegisterCommand<CmdPostProcessingEndDraw>();
+	RegisterCommand<CmdPostProcessingSetEffectType>();
 
 	RegisterCommand<CmdPushTranslation>();
 	RegisterCommand<CmdPushRotationX>();
