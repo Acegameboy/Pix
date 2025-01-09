@@ -160,3 +160,28 @@ Matrix4 MathHelper::Inverse(const Matrix4& m)
 
     return Adjoint(m) * invDet;
 }
+
+bool MathHelper::Intersect(const Ray& ray, const Sphere& sphere, float& distance)
+{
+    Vector3 v = sphere.origin - ray.origin;
+    float t = Dot(v, ray.direction);
+
+    Vector3 closestPoint = ray.origin + (ray.direction * t);
+    float closestPointToCenterSqr = MagnitudeSquared(closestPoint - sphere.origin);
+    float radiusSqr = sphere.radius * sphere.radius;
+    if (closestPointToCenterSqr > radiusSqr)
+    {
+        return false;
+    }
+
+    float oppositeSide = sqrt(radiusSqr - closestPointToCenterSqr);
+    if (MagnitudeSquared(ray.origin - sphere.origin) < radiusSqr)
+    {
+        distance = t + oppositeSide;
+    }
+    else
+    {
+        distance = t - oppositeSide;
+    }
+    return true;
+}

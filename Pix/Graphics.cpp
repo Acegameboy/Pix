@@ -9,6 +9,7 @@
 #include "LightManager.h"
 #include "MaterialManager.h"
 #include "PostProcessing.h"
+#include "RayTracer.h"
 
 void Graphics::NewFrame()
 {
@@ -21,4 +22,5 @@ void Graphics::NewFrame()
 	LightManager::Get()->OnNewFrame();
 	MaterialManager::Get()->OnNewFrame();
 	PostProcessing::Get()->OnNewFrame();
+	RayTracer::Get()->OnNewFrame();
 }
